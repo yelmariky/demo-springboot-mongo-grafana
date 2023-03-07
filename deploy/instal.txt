@@ -1,0 +1,85 @@
+docker build -t crud/demo-metrics:v4 .
+docker tag crud/demo-metrics:v4 dokeryelmariki/demo-metrics:v4
+docker push dokeryelmariki/demo-metrics:latest
+
+helm repo add bitnami https://charts.bitnami.com/bitnami 
+helm install prometheus-operat bitnami/kube-prometheus
+NAME: prometheus-operat
+LAST DEPLOYED: Tue Feb 21 16:40:20 2023
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+
+CHART NAME: kube-prometheus
+CHART VERSION: 8.3.5
+APP VERSION: 0.63.0
+
+** Please be patient while the chart is being deployed **
+
+Watch the Prometheus Operator Deployment status using the command:
+
+    kubectl get deploy -w --namespace default -l app.kubernetes.io/name=kube-prometheus-operator,app.kubernetes.io/instance=prometheus-operat
+
+Watch the Prometheus StatefulSet status using the command:
+
+    kubectl get sts -w --namespace default -l app.kubernetes.io/name=kube-prometheus-prometheus,app.kubernetes.io/instance=prometheus-operat
+
+Prometheus can be accessed via port "9090" on the following DNS name from within your cluster:
+
+    prometheus-operat-kube-pro-prometheus.default.svc.cluster.local
+
+To access Prometheus from outside the cluster execute the following commands:
+
+    echo "Prometheus URL: http://127.0.0.1:9090/"
+    kubectl port-forward --namespace default svc/prometheus-operat-kube-pro-prometheus 9090:9090
+
+Watch the Alertmanager StatefulSet status using the command:
+
+    kubectl get sts -w --namespace default -l app.kubernetes.io/name=kube-prometheus-alertmanager,app.kubernetes.io/instance=prometheus-operat
+
+Alertmanager can be accessed via port "9093" on the following DNS name from within your cluster:
+
+    prometheus-operat-kube-pro-alertmanager.default.svc.cluster.local
+
+To access Alertmanager from outside the cluster execute the following commands:
+
+    echo "Alertmanager URL: http://127.0.0.1:9093/"
+    kubectl port-forward --namespace default svc/prometheus-operat-kube-pro-alertmanager 9093:9093
+
+
+curl http://localhost:9090/api/v1/targets | jq '.data.activeTargets[] | .labels.job + ": " + .health'
+
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
+kubectl apply -f deploy-springboot.yml
+kubectl aplly -f service-monitor-spring-boot.yml
+
+## install grafana ####
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+## with persistence
+helm install grafana --values deploy/grafana/grafana.yml --set persistence.storageClassName='gp2' --set persistence.enabled=true --set adminPassword='1WJolvx4zWhXAfCyQ0q3d27Hc963VEBxKWzXF2zJ' --set service.type=LoadBalancer grafana/grafana
+## without persistence
+helm install grafana --values deploy/grafana/grafana.yml --set adminPassword='1WJolvx4zWhXAfCyQ0q3d27Hc963VEBxKWzXF2zJ' --set service.type=LoadBalancer grafana/grafana
+
+##helm install grafana grafana/grafana
+password: 1WJolvx4zWhXAfCyQ0q3d27Hc963VEBxKWzXF2zJ
+##############            ################
+1. Get your 'admin' user password by running:
+
+   kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+
+2. The Grafana server can be accessed via port 80 on the following DNS name from within your cluster:
+
+   grafana.default.svc.cluster.local
+
+   Get the Grafana URL to visit by running these commands in the same shell:
+     export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" -o jsonpath="{.items[0].metadata.name}")
+     kubectl --namespace default port-forward $POD_NAME 3000
+
+3. Login with the password from step 1 and the username: admin
+##################################################
+
+##helm install grafana grafana/grafana-agent-operator
