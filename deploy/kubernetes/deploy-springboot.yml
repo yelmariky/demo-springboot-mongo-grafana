@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: demo-metrics
-        image: dokeryelmariki/demo-metrics:v9
+        image: dokeryelmariki/demo-metrics:latest
         ports:
         - containerPort: 8000
 ---

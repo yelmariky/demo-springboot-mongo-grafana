@@ -1,5 +1,5 @@
 docker build -t crud/demo-metrics:v4 .
-docker tag crud/demo-metrics:v4 dokeryelmariki/demo-metrics:v4
+docker tag crud/demo-metrics:v4 dokeryelmariki/demo-metrics:latest
 docker push dokeryelmariki/demo-metrics:latest
 
 helm repo add bitnami https://charts.bitnami.com/bitnami 

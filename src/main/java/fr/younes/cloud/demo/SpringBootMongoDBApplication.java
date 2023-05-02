@@ -12,12 +12,15 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import fr.younes.libkafkaspring.config.KafkaConfig;
 
 import java.util.List;
 
 
 @SpringBootApplication
+@Import({KafkaConfig.class})
 @EnableMongoRepositories
 public class SpringBootMongoDBApplication {
 
